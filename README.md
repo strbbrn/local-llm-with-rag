@@ -22,7 +22,7 @@ This Local LLM application, It leverages LangChain for powerful question-answeri
     ```bash
     pip install -r requirements.txt
     ```
-    (Make sure you have `ollama` installed and running. Refer to its documentation for setup instructions.)
+    (Make sure you have `ollama` installed and running. Refer to its documentation for setup instructions.[OLLAMA](https://ollama.com/download))
 
 3.  **Set up Model Type:**
     *   Add your Ollama model name: `phi3` 
