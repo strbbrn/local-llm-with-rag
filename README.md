@@ -46,7 +46,7 @@ This Local LLM application, It leverages LangChain for powerful question-answeri
 
 *   **Model:** Modify the `model_type` and `model` variables in `main.py` to use different language models (e.g., OpenAI).
 *   **Embeddings:** Experiment with different embedding models by changing the `OllamaEmbeddings` model name.
-*   **Theme:** Customize the CSS in the `st.markdown` section of `app.py` to change the appearance of the app.
+*   **Theme:** Customize the CSS in the `st.markdown` section of `main.py` to change the appearance of the app.
 
 
 ## Contributing
