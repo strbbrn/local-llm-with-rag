@@ -2,6 +2,7 @@
 
 This Local LLM application, It leverages LangChain for powerful question-answering capabilities and Ollama as the Local language model.
 
+![demo](https://github.com/strbbrn/local-llm-with-rag/blob/main/ragwithphi3outputs.png?raw=true)
 ## Features
 
 *   **Intuitive Chat Interface:** Ask questions in plain English and receive concise answers.
