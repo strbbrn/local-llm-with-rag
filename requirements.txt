@@ -1,7 +1,2 @@
-# langchain 
-#chromadb
-streamlit
-streamlit_chat 
-# python-dotenv 
-# pypdf
-# ollama
+Flask
+gunicorn
