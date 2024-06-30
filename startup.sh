@@ -8,5 +8,6 @@
 # Install or update Python packages from requirements.txt
 pip install -r requirements.txt
 
+cat requirements.txt
 # Start Gunicorn server with your Flask application
-gunicorn -b 0.0.0.0:80 -w 4 app:app
+gunicorn -b 0.0.0.0:80 -w 4 --timeout 600 app:app
