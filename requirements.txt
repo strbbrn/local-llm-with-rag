@@ -1,7 +1,7 @@
-langchain 
-chromadb
+# langchain 
+#chromadb
 streamlit
 streamlit_chat 
-python-dotenv 
-pypdf
-ollama
+# python-dotenv 
+# pypdf
+# ollama
