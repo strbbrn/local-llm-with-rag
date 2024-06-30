@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+   
+jobs:
+  Linting:
+    name: Linting with super linter
+    permissions:
+      contents: write
+      packages: write
+      statuses: write
+    uses: ./.github/workflows/linting.yml
+  UnitTest:
+    name: Run Unit test cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Unit test
+        run: |
+          echo "Running unit tests"
+          pytest
+        continue-on-error: false
+  Sonar:
+    name: Code scan with sonarqube
+    uses: ./.github/workflows/sonar.yml
+    
