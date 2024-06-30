@@ -11,7 +11,7 @@ def main():
     option = st.selectbox("Choose an option", ["Option 1", "Option 2", "Option 3"])
     st.write(f"You selected: {option}")
 
-    # Add file uploader
+    # Add file
     st.subheader("File Uploader")
     uploaded_file = st.file_uploader("Choose a file", type=['txt', 'csv'])
     if uploaded_file is not None:
