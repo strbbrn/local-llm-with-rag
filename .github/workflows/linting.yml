@@ -1,13 +1,13 @@
 name: Lint
 
-on:  # yamllint disable-line rule:truthy
+on:  
   workflow_call:
 
 permissions: { }
 
 jobs:
   build:
-    name: Lint
+    name: Linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
