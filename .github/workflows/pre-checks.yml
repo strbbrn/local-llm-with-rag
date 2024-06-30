@@ -1,0 +1,13 @@
+name: PR Checks
+
+on:
+  push:
+    
+jobs:
+  Linting:
+    name: Linting with super linter
+    uses: ./github/workflows/linting.yml
+  Sonar:
+    name: Code scan with sonarqube
+    uses: ./github/workflows/sonar.yml
+    
