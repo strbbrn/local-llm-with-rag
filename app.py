@@ -9,8 +9,8 @@ def hello():
 
 @app.route('/about')
 def about():
-    return "This is the about page."
+    return "Hello from about page."
 
-# Run the Flask application if this file is executed directly
+
 if __name__ == '__main__':
     app.run(debug=True)

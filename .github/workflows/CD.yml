@@ -1,16 +1,18 @@
 name: Build and deploy Python app to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: pythonshashi  # set this to your application's name
-  PYTHON_VERSION: '3.12'               # set this to the Python version to use
+  AZURE_WEBAPP_NAME: pythonshashi  
+  PYTHON_VERSION: '3.12'               
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 
 jobs:
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
