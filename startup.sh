@@ -1,11 +1,5 @@
 #!/bin/bash
 
-
-
-# Activate your Python virtual environment (if applicable)
-# source /path/to/your/venv/bin/activate
-
-# Install or update Python packages from requirements.txt
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 
