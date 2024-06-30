@@ -6,6 +6,11 @@ on:
 jobs:
   Linting:
     name: Linting with super linter
+    permissions:
+      contents: write
+      packages: write
+      # To report GitHub Actions status checks
+      statuses: write
     uses: ./.github/workflows/linting.yml
   Sonar:
     name: Code scan with sonarqube

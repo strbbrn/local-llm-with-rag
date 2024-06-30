@@ -9,13 +9,6 @@ jobs:
   build:
     name: Lint
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      packages: write
-      # To report GitHub Actions status checks
-      statuses: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
