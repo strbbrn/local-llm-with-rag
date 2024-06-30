@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-   
+ 
 jobs:
 #   Linting:
 #     name: Linting with super linter
