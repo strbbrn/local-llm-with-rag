@@ -1,0 +1,60 @@
+name: Generate Tag and Release (REST API)
+
+on:
+  push:
+    branches: [ main ]  # Change branch name as needed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+      # Get previous tag version (if it exists)
+    - name: Get previous tag version
+      id: get_version
+      run: |
+        url="https://api.github.com/repos/${{ github.repository_owner }}/${{ github.repository }}/releases/latest"
+        response=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"  "$url")
+        tag_name=$(echo $response | jq -r '.tag_name')
+        echo "PREVIOUS_TAG=$tag_name"
+        << EOF >> $GITHUB_ENV
+        PREVIOUS_TAG=$tag_name
+        EOF
+
+      # Generate new version based on previous tag
+    - name: Generate new version
+      id: generate_version
+      run: |
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "v1.0.0"  # Set initial version if none exists
+        else
+          # Extract major, minor, and patch numbers from previous tag
+          major=$(echo $PREVIOUS_TAG | cut -d '.' -f 1)
+          minor=$(echo $PREVIOUS_TAG | cut -d '.' -f 2)
+          patch=$(echo $PREVIOUS_TAG | cut -d '.' -f 3)
+
+          # Increment patch number by default
+          patch=$((patch + 1))
+
+          # Create new version string
+          new_version="$major.$minor.$patch"
+        fi
+        echo "NEW_VERSION=$new_version"
+        << EOF >> $GITHUB_ENV
+        NEW_VERSION=$new_version
+        EOF
+
+      # Create tag using REST API
+    - name: Create tag
+      run: |
+        url="https://api.github.com/repos/${{ github.repository_owner }}/${{ github.repository }}/git/tags"
+        tag_data="{\"tag\": \"$NEW_VERSION\", \"message\": \"Release $NEW_VERSION\", \"object\": \"$(git rev-parse HEAD)\"}"
+        curl -sL -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "$tag_data" "$url"
+
+      # Create release using REST API
+    - name: Create release
+      run: |
+        url="https://api.github.com/repos/${{ github.repository_owner }}/${{ github.repository }}/releases"
+        release_data="{\"tag_name\": \"$NEW_VERSION\", \"name\": \"Release $NEW_VERSION\", \"body\": \"**Release Notes:**  (Add release notes creation script here)\"}"  # Optional release notes
+        curl -sL -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "$release_data" "$url"
