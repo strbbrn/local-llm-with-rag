@@ -1,103 +1,30 @@
-name: CI Pipeline
+#!/bin/sh
 
-on:
-  push:
-    branches:
-      - main
+# This script checks for valid commit messages.
 
-jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+# Regex pattern for a valid commit message
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|chore|BREAKING CHANGE): .{1,50}'
 
-      - name: Get commit SHA
-        id: get_commit_sha
-        run: echo "COMMIT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
+error_msg="ERROR: Commit message does not follow the conventional format.
+Example: 'feat: add new feature'
 
-      - name: Get PR number from commit
-        id: get_pr_number
-        run: |
-          pr_number=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                       "https://api.github.com/repos/${{ github.repository }}/commits/${GITHUB_SHA}/pulls" \
-                       | jq -r '.[0].number')
-          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-          echo "Pull Request number: $pr_number"
+Allowed types:
+  - feat: A new feature
+  - fix: A bug fix
+  - docs: Documentation changes
+  - style: Code style changes (formatting, missing semicolons, etc.)
+  - refactor: Refactoring code (neither new feature nor bug fix)
+  - perf: Performance improvements
+  - test: Adding or updating tests
+  - chore: Changes to the build process or auxiliary tools and libraries
+  - BREAKING CHANGE: A major change that affects backward compatibility
 
-      - name: Get commit messages from PR
-        id: get_commit_messages
-        run: |
-          response=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                     "https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.PR_NUMBER }}/commits")
-          commit_messages=$(echo "$response" | jq -r '.[].commit.message')
-          echo "COMMIT_MESSAGES=$commit_messages" >> $GITHUB_ENV
-          echo "Commit messages: $commit_messages"
+Your commit message:
+$(head -n1 $1)"
 
-      - name: Determine version bump
-        id: determine_bump
-        run: |
-          bump="patch"
-          if echo "$COMMIT_MESSAGES" | grep -q 'BREAKING CHANGE'; then
-            bump="major"
-          elif echo "$COMMIT_MESSAGES" | grep -q 'feat:'; then
-            bump="minor"
-          elif echo "$COMMIT_MESSAGES" | grep -q 'fix:'; then
-            bump="patch"
-          fi
-          echo "BUMP=$bump" >> $GITHUB_ENV
-          echo "Version bump: $bump"
+commit_msg=$(cat "$1")
 
-      - name: Get previous tag version
-        id: get_version
-        run: |
-          response=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                     "https://api.github.com/repos/${{ github.repository }}/releases/latest")
-          tag_name=$(echo "$response" | jq -r '.tag_name // ""')
-          echo "PREVIOUS_TAG=$tag_name" >> $GITHUB_ENV
-          echo "Previous tag: $tag_name"
-
-      - name: Generate new version
-        id: generate_version
-        env:
-          PREVIOUS_TAG: ${{ env.PREVIOUS_TAG }}
-          BUMP: ${{ env.BUMP }}
-        run: |
-          echo "Previous tag from environment: $PREVIOUS_TAG"
-          if [ -z "$PREVIOUS_TAG" ]; then
-            new_version="v1.0.0"
-          else
-            major=$(echo "$PREVIOUS_TAG" | cut -d '.' -f 1 | tr -d 'v')
-            minor=$(echo "$PREVIOUS_TAG" | cut -d '.' -f 2)
-            patch=$(echo "$PREVIOUS_TAG" | cut -d '.' -f 3)
-
-            if [ "$BUMP" == "major" ]; then
-              major=$((major + 1))
-              minor=0
-              patch=0
-            elif [ "$BUMP" == "minor" ]; then
-              minor=$((minor + 1))
-              patch=0
-            elif [ "$BUMP" == "patch" ]; then
-              patch=$((patch + 1))
-            fi
-
-            new_version="v$major.$minor.$patch"
-          fi
-          echo "New version: $new_version"
-          echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
-
-      - name: Create GitHub release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          response=$(curl -sL -X POST -H "Authorization: token $GITHUB_TOKEN" \
-                     -H "Accept: application/vnd.github.v3+json" \
-                     "https://api.github.com/repos/${{ github.repository }}/releases" \
-                     -d '{
-                           "tag_name": "'"$NEW_VERSION"'",
-                           "name": "Release '"$NEW_VERSION"'",
-                           "draft": false,
-                           "prerelease": false
-                         }')
-          echo "Created release: $response"
+if ! echo "$commit_msg" | grep -iqE "$commit_regex"; then
+  echo "$error_msg"
+  exit 1
+fi
