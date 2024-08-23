@@ -1,0 +1,54 @@
+name: PR Commit Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get PR number
+        id: get_pr_number
+        run: |
+          pr_number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+
+      - name: Get commit messages from PR
+        id: get_commit_messages
+        run: |
+          pr_number=${{ env.PR_NUMBER }}
+          response=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                     "https://api.github.com/repos/${{ github.repository }}/pulls/$pr_number/commits")
+          commit_messages=$(echo "$response" | jq -r '.[].commit.message')
+          echo "COMMIT_MESSAGES=$commit_messages" >> $GITHUB_ENV
+
+      - name: Validate commit messages
+        id: validate_commits
+        run: |
+          commit_regex='^(feat|fix|docs|style|refactor|perf|test|chore|BREAKING CHANGE): .{1,50}'
+          error_msg="ERROR: Commit message does not follow the conventional format.
+          Example: 'feat: add new feature'
+
+          Allowed types:
+            - feat: A new feature
+            - fix: A bug fix
+            - docs: Documentation changes
+            - style: Code style changes (formatting, missing semicolons, etc.)
+            - refactor: Refactoring code (neither new feature nor bug fix)
+            - perf: Performance improvements
+            - test: Adding or updating tests
+            - chore: Changes to the build process or auxiliary tools and libraries
+            - BREAKING CHANGE: A major change that affects backward compatibility"
+
+          for msg in ${{ env.COMMIT_MESSAGES }}; do
+            if ! echo "$msg" | grep -iqE "$commit_regex"; then
+              echo "$error_msg"
+              exit 1
+            fi
+          done
+          
