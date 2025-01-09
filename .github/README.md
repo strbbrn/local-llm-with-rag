@@ -25,7 +25,12 @@ This Local LLM application, It leverages LangChain for powerful question-answeri
     (Make sure you have `ollama` installed and running. Refer to its documentation for setup instructions.[OLLAMA](https://ollama.com/download))
 
 3.  **Set up Model Type:**
-    *   Add your Ollama model name: `phi3` 
+    *   Add your Ollama model name: `phi3`
+      ```bash
+      ollama pull phi3
+      ollama pull nomic-embed-text
+      ```
+      
     
 4.  **Prepare Your Documents:**
     *   Place your PDF, TXT, or CSV files in the `docs` directory.
